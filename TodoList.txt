@@ -1,0 +1,6 @@
+
+删除comment的时候消息计数器中的count_comment也要减少
+
+
+
+获取评论列表
