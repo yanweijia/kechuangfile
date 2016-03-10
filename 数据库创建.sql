@@ -42,10 +42,7 @@ primary key(uid,favorite_mid)
 #用户评论表
 CREATE TABLE user_comment(
 uid  int UNSIGNED not null,
-mid  bigint not null,
-cuid int UNSIGNED not null,
 cid  bigint not null,
-comment_time date not null,
 primary key(uid,cid)
 )default charset=utf8;
 
