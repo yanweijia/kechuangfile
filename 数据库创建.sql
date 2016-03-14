@@ -1,7 +1,5 @@
-
 #创建数据库
 CREATE DATABASE user DEFAULT CHARACTER SET utf8;
-
 
 #创建用户账户表
 CREATE TABLE account(
@@ -80,7 +78,6 @@ count_comment mediumint unsigned not null default 0,
 count_repost int unsigned not null default 0,
 primary key(mid)
 )default charset=utf8;
-
 
 
 
