@@ -1,120 +1,115 @@
-package client;
- 
+package cn.yanweijia;
+
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
- 
-public class FileUpload {
- 
-    /**
-     * å‘é€è¯·æ±‚
-     * 
-     * @param url
-     *            è¯·æ±‚åœ°å€
-     * @param filePath
-     *            æ–‡ä»¶åœ¨æœåŠ¡å™¨ä¿å­˜è·¯å¾„ï¼ˆè¿™é‡Œæ˜¯ä¸ºäº†è‡ªå·±æµ‹è¯•æ–¹ä¾¿è€Œå†™ï¼Œå¯ä»¥å°†è¯¥å‚æ•°å»æ‰ï¼‰
-     * @return
-     * @throws IOException
-     */
-    public int send(String url, String filePath) throws IOException {
- 
-        File file = new File(filePath);
-        if (!file.exists() || !file.isFile()) {
-            return -1;
-        }
- 
-        /**
-         * ç¬¬ä¸€éƒ¨åˆ†
-         */
-        URL urlObj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
- 
-        /**
-         * è®¾ç½®å…³é”®å€¼
-         */
-        con.setRequestMethod("POST"); // ä»¥Postæ–¹å¼æäº¤è¡¨å•ï¼Œé»˜è®¤getæ–¹å¼
-        con.setDoInput(true);
-        con.setDoOutput(true);
-        con.setUseCaches(false); // postæ–¹å¼ä¸èƒ½ä½¿ç”¨ç¼“å­˜
- 
-        // è®¾ç½®è¯·æ±‚å¤´ä¿¡æ¯
-        con.setRequestProperty("Connection", "Keep-Alive");
-        con.setRequestProperty("Charset", "UTF-8");
- 
-        // è®¾ç½®è¾¹ç•Œ
-        String BOUNDARY = "----------" + System.currentTimeMillis();
-        con.setRequestProperty("Content-Type", "multipart/form-data; boundary="
-                + BOUNDARY);
- 
-        // è¯·æ±‚æ­£æ–‡ä¿¡æ¯
- 
-        // ç¬¬ä¸€éƒ¨åˆ†ï¼š
-        StringBuilder sb = new StringBuilder();
-        sb.append("--"); // ////////å¿…é¡»å¤šä¸¤é“çº¿
-        sb.append(BOUNDARY);
-        sb.append("\r\n");
-        sb.append("Content-Disposition: form-data;name=\"file\";filename=\""
-                + file.getName() + "\"\r\n");
-        sb.append("Content-Type:application/octet-stream\r\n\r\n");
- 
-        byte[] head = sb.toString().getBytes("utf-8");
- 
-        // è·å¾—è¾“å‡ºæµ
- 
-        OutputStream out = new DataOutputStream(con.getOutputStream());
-        out.write(head);
- 
-        // æ–‡ä»¶æ­£æ–‡éƒ¨åˆ†
-        DataInputStream in = new DataInputStream(new FileInputStream(file));
-        int bytes = 0;
-        byte[] bufferOut = new byte[1024];
-        while ((bytes = in.read(bufferOut)) != -1) {
-            out.write(bufferOut, 0, bytes);
-        }
-        in.close();
- 
-        // ç»“å°¾éƒ¨åˆ†
-        byte[] foot = ("\r\n--" + BOUNDARY + "--\r\n").getBytes("utf-8");// å®šä¹‰æœ€åæ•°æ®åˆ†éš”çº¿
- 
-        out.write(foot);
- 
-        out.flush();
-        out.close();
- 
-        /**
-         * è¯»å–æœåŠ¡å™¨å“åº”ï¼Œå¿…é¡»è¯»å–,å¦åˆ™æäº¤ä¸æˆåŠŸ
-         */
- 
-        return con.getResponseCode();
- 
-        /**
-         * ä¸‹é¢çš„æ–¹å¼è¯»å–ä¹Ÿæ˜¯å¯ä»¥çš„
-         */
- 
-        // try {
-        // // å®šä¹‰BufferedReaderè¾“å…¥æµæ¥è¯»å–URLçš„å“åº”
-        // BufferedReader reader = new BufferedReader(new InputStreamReader(
-        // con.getInputStream()));
-        // String line = null;
-        // while ((line = reader.readLine()) != null) {
-        // System.out.println(line);
-        // }
-        // } catch (Exception e) {
-        // System.out.println("å‘é€POSTè¯·æ±‚å‡ºç°å¼‚å¸¸ï¼" + e);
-        // e.printStackTrace();
-        // }
- 
-    }
- 
-    public static void main(String[] args) throws IOException {
-        FileUpload up = new FileUpload();
-        System.out.println(up.send("http://localhost:8080/fileupload/upload",
-                "c:\\girls.gif"));
-        ;
-    }
+
+public class uploadFile {
+	/**
+	 * ·¢ËÍÇëÇó
+	 * 
+	 * @param url
+	 *            ÇëÇóµØÖ·
+	 * @param filePath
+	 *            ÎÄ¼şÔÚ·şÎñÆ÷±£´æÂ·¾¶£¨ÕâÀïÊÇÎªÁË×Ô¼º²âÊÔ·½±ã¶øĞ´£¬¿ÉÒÔ½«¸Ã²ÎÊıÈ¥µô£©
+	 * @return
+	 * @throws IOException
+	 */
+	public static int send(String url, String filePath) throws IOException {
+
+		File file = new File(filePath);
+		if (!file.exists() || !file.isFile()) {
+			return -1;
+		}
+
+		/**
+		 * µÚÒ»²¿·Ö
+		 */
+		URL urlObj = new URL(url);
+		HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
+
+		/**
+		 * ÉèÖÃ¹Ø¼üÖµ
+		 */
+		con.setRequestMethod("POST"); // ÒÔPost·½Ê½Ìá½»±íµ¥£¬Ä¬ÈÏget·½Ê½
+		con.setDoInput(true);
+		con.setDoOutput(true);
+		con.setUseCaches(false); // post·½Ê½²»ÄÜÊ¹ÓÃ»º´æ
+
+		// ÉèÖÃÇëÇóÍ·ĞÅÏ¢
+		con.setRequestProperty("Connection", "Keep-Alive");
+		con.setRequestProperty("Charset", "UTF-8");
+
+		// ÉèÖÃ±ß½ç
+		String BOUNDARY = "----------" + System.currentTimeMillis();
+		con.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
+
+		// ÇëÇóÕıÎÄĞÅÏ¢
+
+		// µÚÒ»²¿·Ö£º
+		StringBuilder sb = new StringBuilder();
+		sb.append("--"); // ////////±ØĞë¶àÁ½µÀÏß
+		sb.append(BOUNDARY);
+		sb.append("\r\n");
+		sb.append("Content-Disposition: form-data;name=\"file\";filename=\"" + file.getName() + "\"\r\n");
+		sb.append("Content-Type:application/octet-stream\r\n\r\n");
+
+		byte[] head = sb.toString().getBytes("utf-8");
+
+		// »ñµÃÊä³öÁ÷
+
+		OutputStream out = new DataOutputStream(con.getOutputStream());
+		out.write(head);
+
+		// ÎÄ¼şÕıÎÄ²¿·Ö
+		DataInputStream in = new DataInputStream(new FileInputStream(file));
+		int bytes = 0;
+		byte[] bufferOut = new byte[1024];
+		while ((bytes = in.read(bufferOut)) != -1) {
+			out.write(bufferOut, 0, bytes);
+		}
+		in.close();
+
+		// ½áÎ²²¿·Ö
+		byte[] foot = ("\r\n--" + BOUNDARY + "--\r\n").getBytes("utf-8");// ¶¨Òå×îºóÊı¾İ·Ö¸ôÏß
+
+		out.write(foot);
+
+		out.flush();
+		out.close();
+
+		/**
+		 * ¶ÁÈ¡·şÎñÆ÷ÏìÓ¦£¬±ØĞë¶ÁÈ¡,·ñÔòÌá½»²»³É¹¦
+		 */
+
+		// return con.getResponseCode();
+
+		/**
+		 * ÏÂÃæµÄ·½Ê½¶ÁÈ¡Ò²ÊÇ¿ÉÒÔµÄ
+		 */
+		try {
+			// ¶¨ÒåBufferedReaderÊäÈëÁ÷À´¶ÁÈ¡URLµÄÏìÓ¦
+			BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				System.out.print(line);
+			}
+		} catch (Exception e) {
+			System.out.println("·¢ËÍPOSTÇëÇó³öÏÖÒì³££¡" + e);
+			e.printStackTrace();
+		}
+		return 1;
+	}
+
+	public static void main(String[] args) throws IOException {
+		System.out.println(uploadFile.send("http://localhost:8080/kechuang/uploadHead", "E:\\myHead.jpg"));
+		;
+	}
 }
